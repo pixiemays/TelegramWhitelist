@@ -1,0 +1,11 @@
+# Telegram bot token (get in @BotFather)
+bot-token: "YOUR_BOT_TOKEN_HERE"
+
+# Telegram user ID list, of allowed user
+allowed-users:
+  - 123456789
+  - 987654321
+
+# Execution command (paste nick)
+# {nick} — player nick placeholder
+command-template: "swl add {nick}"
