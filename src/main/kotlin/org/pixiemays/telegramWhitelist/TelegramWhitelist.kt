@@ -61,7 +61,7 @@ class TelegramWhitelist @Inject constructor(private val server: ProxyServer,
             val telegramBot = TelegramBot(
                 config = config,
                 logger = logger,
-                onCommand = { nick -> executeCommand(config.commandTemplate, nick) }
+                onCommand = { commandKey, nick -> executeCommand(config.commands[commandKey]!!, nick) }
             )
 
             val botsApi = TelegramBotsApi(DefaultBotSession::class.java)

@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 class TelegramBot(
     private val config: PluginConfig,
     private val logger: Logger,
-    private val onCommand: (nick: String) -> Boolean
+    private val onCommand: (commandKey: String, nick: String) -> Boolean
 ) : TelegramLongPollingBot(config.botToken) {
 
     override fun getBotUsername(): String = "TelegramWhitelist"
@@ -20,32 +20,47 @@ class TelegramBot(
         if (!message.hasText()) return
         if (!message.isUserMessage) return
 
-        val senderId = message.from.id.toLong()
+        val senderId = message.from.id
         val chatId = message.chatId.toString()
         val text = message.text.trim()
 
         if (senderId !in config.allowedUsers) {
             reply(chatId, "❌ You are not allowed.")
-            logger.warn("An unauthorized user tried to use a bot: $senderId")
+            logger.warn("Unauthorized user: $senderId")
+            return
+        }
+
+        val availableKeys = config.commands.keys.joinToString(" | ")
+
+        val parts = text.split(" ")
+        if (parts.size != 2) {
+            reply(chatId, "Usage: `<action> <nick>`\nActions: $availableKeys")
+            return
+        }
+
+        val commandKey = parts[0].lowercase()
+        val nick = parts[1]
+
+        if (commandKey !in config.commands) {
+            reply(chatId, "Unknown action: `$commandKey`\nAvailable: $availableKeys")
             return
         }
 
         val nickRegex = Regex("^[a-zA-Z0-9_]{3,32}$")
-        if (!nickRegex.matches(text)) {
-            reply(chatId, "Incorrect nick.\nOnly send player nick (3–16 chars, a-z, 0-9, _).")
+        if (!nickRegex.matches(nick)) {
+            reply(chatId, "Incorrect nick. Only a-z, 0-9, _ (3–32 chars).")
             return
         }
 
-        val nick = text
-        logger.info("user $senderId request to add: $nick")
+        logger.info("User ${message.from.userName}($senderId): $commandKey $nick")
 
-        val success = onCommand(nick)
-
+        val success = onCommand(commandKey, nick)
         if (success) {
-            reply(chatId, "Player added: ${nick}")
+            reply(chatId, "Done: `$commandKey $nick`")
         } else {
             reply(chatId, "ERROR. Check console.")
         }
+
     }
 
     private fun reply(chatId: String, text: String) {

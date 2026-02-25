@@ -1,5 +1,6 @@
 package org.pixiemays.telegramWhitelist
 
+import com.mojang.brigadier.Command
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.InputStream
@@ -7,7 +8,7 @@ import java.io.InputStream
 data class PluginConfig(
     val botToken: String,
     val allowedUsers: Set<Long>,
-    val commandTemplate: String
+    val commands: Map<String, String>
 ) {
     companion object {
         fun load(configFile: File, defaultStream: InputStream): PluginConfig {
@@ -37,12 +38,16 @@ data class PluginConfig(
                 }
             }.toSet()
 
-            val commandTemplate = (data["command-template"] as? String) ?: "swl add {nick}"
+            @Suppress("UNCHECKED_CAST")
+            val commands = (data["commands"] as? Map<String, String>) ?: mapOf(
+                "add" to "swl add {nick}",
+                "remove" to "swl remove {nick}"
+            )
 
             return PluginConfig(
                 botToken = botToken,
                 allowedUsers = allowedUsers,
-                commandTemplate = commandTemplate
+                commands = commands
             )
         }
     }
