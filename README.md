@@ -32,5 +32,7 @@ allowed-users:
 
 # Execution command (paste nick)
 # {nick} — player nick placeholder
-command-template: "swl add {nick}"
+commands:
+  add: "swl add {nick}"
+  remove: "swl remove {nick}"
 ```
