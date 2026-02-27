@@ -34,7 +34,7 @@ class TelegramBot(
 
         val parts = text.split(" ")
         if (parts.size != 2) {
-            reply(chatId, "Usage: `<action> <nick>`\nActions: $availableKeys")
+            reply(chatId, "Usage: <code>&lt;action&gt; &lt;nick&gt;</code>\nActions: <code>$availableKeys</code>")
             return
         }
 
@@ -42,7 +42,7 @@ class TelegramBot(
         val nick = parts[1]
 
         if (commandKey !in config.commands) {
-            reply(chatId, "Unknown action: `$commandKey`\nAvailable: $availableKeys")
+            reply(chatId, "Unknown action: <code>$commandKey</code>\nAvailable: <code>$availableKeys</code>")
             return
         }
 
@@ -56,7 +56,7 @@ class TelegramBot(
 
         val success = onCommand(commandKey, nick)
         if (success) {
-            reply(chatId, "Done: `$commandKey $nick`")
+            reply(chatId, "Done: <code>$commandKey $nick</code>")
         } else {
             reply(chatId, "ERROR. Check console.")
         }
@@ -69,7 +69,7 @@ class TelegramBot(
                 SendMessage.builder()
                     .chatId(chatId)
                     .text(text)
-                    .parseMode("Markdown")
+                    .parseMode("HTML")
                     .build()
             )
         } catch (e: TelegramApiException) {
